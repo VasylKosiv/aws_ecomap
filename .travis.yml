@@ -1,0 +1,39 @@
+language: python
+python:
+  - 2.7.15
+
+before_install:
+  - sudo apt-get install -y zip
+  - sudo apt-get install unzip
+  - wget https://releases.hashicorp.com/terraform/0.12.7/terraform_0.12.7_linux_amd64.zip
+  - unzip terraform_0.12.7_linux_amd64.zip
+  - sudo mv terraform /usr/local/bin/
+  - sudo rm -rf terraform_0.12.7_linux_amd64.zip
+install:
+  - sudo pip install -r requirements.txt
+
+script: 
+#   - ./ecomap/bin/run_all_unittests.sh
+  - zip -r test_ecomap.zip *
+  - sed -i 's/TRAVISBUILD/'"$TRAVIS_BUILD_NUMBER"'/g' main.tf
+  - sed -i 's/TRAVISBUILD/'"$TRAVIS_BUILD_NUMBER"'/g' variables.tf
+#   - export AWS_ACCESS_KEY_ID=$access_key_id
+#   - export AWS_SECRET_ACCESS_KEY="$secret_access_key"
+  - terraform init
+  - terraform plan
+  - terraform apply -auto-approve
+  
+deploy:
+  # skip_cleanup: true
+  # provider: elasticbeanstalk
+  # access_key_id: $access_key_id
+  # secret_access_key:
+  #   secure: "$secret_access_key"
+  # region: "us-east-2"  
+  # app: "$APP_NAME"
+  # env: "$ENVIROMENT_NAME"
+  # bucket_name: "ecomap-new-version"
+  # #local_dir: eb
+  # zip_file: test_ecomap.zip
+  # on:
+  #   branch: master
